@@ -13,7 +13,7 @@ export default function SearchBar({ onSearch }) {
     <form className="search" onSubmit={handleSubmit} role="search">
       <input
         type="search"
-        name="query"
+        name="q"
         value={text}
         onChange={(e) => setText(e.target.value)}
         placeholder="Search issues, e.g. tests, README, docs"
