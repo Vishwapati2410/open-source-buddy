@@ -80,3 +80,88 @@ open-source-buddy/
 ## License
 
 [MIT](LICENSE)
+
+---
+
+# Open Source Buddy (हिंदी)
+
+एआई-सहायता वाला एक वेब ऐप है जो शुरुआती लोगों को उनके पहले ओपन सोर्स योगदान को **खोजने, समझने और शुरू करने** में मदद करता है।
+
+- issues को ब्राउज़ करें और खोजें, भाषा और विषय के अनुसार फ़िल्टर करें
+- सप्ताहांत में समय लगाने से पहले किसी रेपो की सेहत जांचें (अंतिम merged PR, maintainer response time, CONTRIBUTING.md)
+- **Explain this issue** दबाएं ताकि सरल अंग्रेज़ी में सारांश, संभावित फाइलें और शुरू करने का प्लान मिल सके
+- issues को बाद के लिए सेव करें, लाइट और डार्क थीम के बीच स्विच करें
+
+यह रेपो **NIT Jamshedpur का Hacktoberfest Hack Day** के लिए स्टार्टर प्रोजेक्ट है। हिस्सा लेने के लिए [CONTRIBUTING.md](CONTRIBUTING.md) देखें।
+
+## इसे चलाएं
+
+आपको **Node.js 20 या उससे नया** चाहिए (Windows, macOS और Linux पर काम करता है)। किसी डेटाबेस और API key की ज़रूरत नहीं है।
+
+```bash
+git clone <your-fork-url>
+cd open-source-buddy
+npm install
+npm run dev
+```
+
+फिर http://localhost:5173 खोलें। `npm run dev` एक्सप्रेस API (port 3001) और Vite client (port 5173) दोनों को एक साथ शुरू करता है।
+
+## मॉक मोड बनाम लाइव मोड
+
+| | मॉक (डिफ़ॉल्ट) | लाइव |
+|---|---|---|
+| GitHub डेटा | `server/github/mockData/` में लोकल sample JSON | वास्तविक GitHub REST API |
+| इंटरनेट की ज़रूरत | नहीं | हाँ |
+| UI संकेत | पीला **Sample data** banner | कोई banner नहीं |
+
+Modes बदलने के लिए, `.env.example` की कॉपी बनाकर `.env` बनाएं और उसे एडिट करें:
+
+```bash
+cp .env.example .env      # on Windows: copy .env.example .env
+```
+
+- `GITHUB_MODE=live` वास्तविक GitHub API का उपयोग करता है। यह token के बिना काम करता है (60 requests/hour)। अधिक उपयोग के लिए `GITHUB_TOKEN` जोड़ें।
+- `AI_PROVIDER=mock` यह एकमात्र लागू AI provider है। यह issue के अपने title, labels और body से व्याख्या बनाता है।
+
+Keys और tokens केवल सर्वर के `.env` फाइल में रहते हैं। उन्हें ब्राउज़र के पास कभी नहीं भेजा जाता।
+
+## प्रोजेक्ट संरचना
+
+```
+open-source-buddy/
+├── client/                  React + Vite फ्रंटएंड
+│   └── src/
+│       ├── App.jsx          पेज लेआउट और साझा state
+│       ├── api.js           बैकएंड के सभी कॉल
+│       ├── components/      cards, filters, detail panel, sidebar ...
+│       ├── hooks/           डेटा और थीम hooks
+│       ├── styles/          CSS फाइलें
+│       └── utils/           छोटा helpers
+├── server/                  Node.js + Express बैकएंड
+│   ├── index.js             ऐप entry point
+│   ├── config.js            .env पढ़ता है
+│   ├── routes/              /api/issues, /api/repos, /api/explain, /api/saved
+│   ├── ai/                  AI provider interface + mock (Gemini, Groq, Ollama are stubs)
+│   ├── github/              GitHub provider interface + mock + live
+│   ├── lib/                 फ़िल्टरिंग, pagination, health score, saved-issue storage
+│   ├── auth/                वर्तमान उपयोगकर्ता कौन है
+│   ├── middleware/          Express middleware
+│   └── data/saved.json     सेव की गई issues (स्वचालित रूप से बनाई जाती है, git-ignored)
+├── .github/                 pull request template
+├── CONTRIBUTING.md
+└── .env.example
+```
+
+## एपीआई
+
+| विधि | पथ | विवरण |
+|---|---|---|
+| GET | `/api/issues` | issues सूचीबद्ध करें। क्वेरी: `q`, `language`, `topic`, `sort`, `page` |
+| GET | `/api/repos/:owner/:name/health` | रेपो की health metrics और score |
+| POST | `/api/explain` | Body `{ "issue": {...} }`, AI व्याख्या लौटाता है |
+| GET / POST / DELETE | `/api/saved` | सूची देखें, जोड़ें (`POST`) या हटाएँ (`DELETE /api/saved/:id`) सेव की गई issues |
+
+## लाइसेंस
+
+[MIT](LICENSE)
